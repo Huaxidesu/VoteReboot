@@ -1,5 +1,5 @@
 name: VoteReboot
-version: Alpha-2.3
+version: Release-2.3
 main: top.jiajiaxd.www.votereboot.VoteReboot
 commands:
   vote:
@@ -26,4 +26,4 @@ permissions:
   VoteReboot.accept:
     default: true
   VoteReboot.cancel:
-    op: true
+    default: op

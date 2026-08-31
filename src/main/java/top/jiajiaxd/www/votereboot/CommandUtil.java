@@ -1,66 +1,37 @@
 package top.jiajiaxd.www.votereboot;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public final class CommandUtil {
+
+    private CommandUtil() {
+    }
+
     public static String run(String command) throws IOException {
-        Scanner input = null;
-        String result = "";
-        Process process = null;
-        try {
-            process = Runtime.getRuntime().exec(command);
-            try {
-                //等待命令执行完成
-                process.waitFor(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            InputStream is = process.getInputStream();
-            input = new Scanner(is);
-            while (input.hasNextLine()) {
-                result += input.nextLine() + "\n";
-            }
-            result = command + "\n" + result; //加上命令本身，打印出来
-        } finally {
-            if (input != null) {
-                input.close();
-            }
-            if (process != null) {
-                process.destroy();
-            }
-        }
-        return result;
+        return execute(Runtime.getRuntime().exec(command), command);
     }
 
     public static String run(String[] command) throws IOException {
-        Scanner input = null;
-        String result = "";
-        Process process = null;
+        return execute(Runtime.getRuntime().exec(command), String.join(" ", command));
+    }
+
+    private static String execute(Process process, String command) {
+        StringBuilder result = new StringBuilder();
         try {
-            process = Runtime.getRuntime().exec(command);
-            try {
-                //等待命令执行完成
-                process.waitFor(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (!process.waitFor(10, TimeUnit.SECONDS)) {
+                process.destroyForcibly();
             }
-            InputStream is = process.getInputStream();
-            input = new Scanner(is);
-            while (input.hasNextLine()) {
-                result += input.nextLine() + "\n";
+            try (Scanner input = new Scanner(process.getInputStream())) {
+                while (input.hasNextLine()) {
+                    result.append(input.nextLine()).append('\n');
+                }
             }
-            result = command + "\n" + result; //加上命令本身，打印出来
-        } finally {
-            if (input != null) {
-                input.close();
-            }
-            if (process != null) {
-                process.destroy();
-            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            process.destroyForcibly();
         }
-        return result;
+        return command + "\n" + result;
     }
 }
