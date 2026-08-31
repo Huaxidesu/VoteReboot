@@ -1,15 +1,10 @@
 # Build the plugin with Maven.
-# - push / pull_request: CI build, artifact upload only
-# - workflow_dispatch (manual run): build and publish a GitHub Release with the runnable jar
+# Manual run (workflow_dispatch): build and publish a GitHub Release with the runnable jar
 # For more information see: https://docs.github.com/actions/using-workflows/manually-running-a-workflow
 
 name: Build and Release
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
   workflow_dispatch:
     inputs:
       tag:
